@@ -7,6 +7,9 @@
 
 int main(int argc, char** argv)
 {
+	if (argc < 2)
+		return 1;
+
 	bool dump_tree = false;
 
 	for (int i = 1; i < argc - 1; i++)
@@ -34,6 +37,7 @@ int main(int argc, char** argv)
 		printf("%s", root->to_string().c_str());
 
 	long double result = root->approximate();
+	delete root;
 	
 #if 0
 	long double limit = 1e-20L;

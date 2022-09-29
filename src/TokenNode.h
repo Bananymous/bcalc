@@ -11,6 +11,11 @@ namespace bcalc
 	{
 	public:
 		TokenNode(Token token, std::vector<TokenNode*> nodes = {});
+		~TokenNode()
+		{
+			for (TokenNode* node : m_nodes)
+				delete node;
+		}
 
 		long double approximate() const;
 

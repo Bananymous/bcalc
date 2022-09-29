@@ -20,7 +20,6 @@ namespace bcalc
 				std::size_t len;
 
 				long double val = std::stold(data.data() + i, &len);
-				//uint64_t val = std::stoull(data.data() + i, &len);
 				result.push_back(Token::CreateValue(val));
 				i += len - 1;
 				continue;
@@ -32,18 +31,18 @@ namespace bcalc
 				while (i + len < data.size() && isalpha(data[i + len])) len++;
 				std::string val(data.data() + i, len);
 
-				if (s_string_to_function.find(val) != s_string_to_function.end())
-					result.push_back(Token::CreateFunction(s_string_to_function.at(val)));
-				else if (s_string_to_constant.find(val) != s_string_to_constant.end())
-					result.push_back(Token::CreateConstant(s_string_to_constant.at(val)));
+				if (decltype(s_string_to_function)::const_iterator it = s_string_to_function.find(val); it != s_string_to_function.end())
+					result.push_back(Token::CreateFunction(it->second));
+				else if (decltype(s_string_to_constant)::const_iterator it = s_string_to_constant.find(val); it != s_string_to_constant.end())
+					result.push_back(Token::CreateConstant(it->second));
 				else
 					result.push_back(Token::CreateString(val));
 				i += len - 1;
 				continue;
 			}
 
-			if (s_char_to_token.find(data[i]) != s_char_to_token.end())
-				result.push_back(Token::Create(s_char_to_token.at(data[i])));
+			if (decltype(s_char_to_token)::const_iterator it = s_char_to_token.find(data[i]); it != s_char_to_token.end())
+				result.push_back(Token::Create(it->second));
 			else
 			{
 				fprintf(stderr, "Unknown character\n", data[i]);
