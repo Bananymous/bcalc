@@ -15,6 +15,9 @@ namespace bcalc
 		Sin,
 		Cos,
 		Tan,
+		ArcSin,
+		ArcCos,
+		ArcTan,
 		Sqrt,
 		Log,
 		Exp,
@@ -22,21 +25,27 @@ namespace bcalc
 	};
 	static const std::unordered_map<std::string, FunctionType> s_string_to_function
 	{
-		{ "sin",  FunctionType::Sin  },
-		{ "cos",  FunctionType::Cos  },
-		{ "tan",  FunctionType::Tan  },
-		{ "sqrt", FunctionType::Sqrt },
-		{ "log",  FunctionType::Log  },
-		{ "exp",  FunctionType::Exp  },
+		{ "sin",    FunctionType::Sin    },
+		{ "arcsin", FunctionType::ArcSin },
+		{ "cos",    FunctionType::Cos    },
+		{ "arccos", FunctionType::ArcCos },
+		{ "tan",    FunctionType::Tan    },
+		{ "arctan", FunctionType::ArcTan },
+		{ "sqrt",   FunctionType::Sqrt   },
+		{ "log",    FunctionType::Log    },
+		{ "exp",    FunctionType::Exp    },
 	};
 	static const std::unordered_map<FunctionType, std::string> s_function_to_string
 	{
-		{ FunctionType::Sin,  "sin"  },
-		{ FunctionType::Cos,  "cos"  },
-		{ FunctionType::Tan,  "tan"  },
-		{ FunctionType::Sqrt, "sqrt" },
-		{ FunctionType::Log,  "log"  },
-		{ FunctionType::Exp,  "exp"  },
+		{ FunctionType::Sin,    "sin"    },
+		{ FunctionType::ArcSin, "arcsin" },
+		{ FunctionType::Cos,    "cos"    },
+		{ FunctionType::ArcCos, "arccos" },
+		{ FunctionType::Tan,    "tan"    },
+		{ FunctionType::ArcTan, "arctan" },
+		{ FunctionType::Sqrt,   "sqrt"   },
+		{ FunctionType::Log,    "log"    },
+		{ FunctionType::Exp,    "exp"    },
 	};
 
 	enum class Constant
