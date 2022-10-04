@@ -5,8 +5,34 @@
 #include <cstring>
 #include <iostream>
 
+int ProgramLoop()
+{
+	while (true)
+	{
+		std::string input;
+		std::getline(std::cin, input);
+
+		if (input == "exit")
+			break;
+
+		auto tokens = bcalc::Lexer::Tokenize(input);
+		if (!tokens.empty())
+		{
+			bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens);
+			if (root)
+				std::cout << "= " << root->approximate() << std::endl;
+			delete root;
+		}
+	}
+
+	return 0;
+}
+
 int main(int argc, char** argv)
 {
+	if (argc == 1)
+		return ProgramLoop();
+
 	if (argc < 2)
 		return 1;
 
