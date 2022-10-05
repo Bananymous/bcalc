@@ -1,5 +1,8 @@
 #include "Parser.h"
 
+
+#define BCALC_PRINT_ERROR(show, begin, end, ...) if (show) { fprintf(stderr, __VA_ARGS__); dump_tokens(begin, end); }
+
 namespace bcalc
 {
 
@@ -93,12 +96,11 @@ namespace bcalc
 			fprintf(stderr, "%s\n", it->to_string().c_str());
 	}
 
-	static TokenNode* BuildTokenTree(it begin, it end)
+	static TokenNode* BuildTokenTree(it begin, it end, bool errors)
 	{
 		if (!IsValid(begin, end))
 		{
-			fprintf(stderr, "Invalid parenthesis\n");
-			dump_tokens(begin, end);
+			BCALC_PRINT_ERROR(errors, begin, end, "Invalid parenthesis\n");
 			return nullptr;
 		}
 
@@ -110,7 +112,7 @@ namespace bcalc
 
 		if (begin == end)
 		{
-			fprintf(stderr, "No available tokens\n");
+			BCALC_PRINT_ERROR(errors, begin, end, "No tokens\n");
 			return nullptr;
 		}
 
@@ -119,8 +121,7 @@ namespace bcalc
 			if (begin->Type() == TokenType::Value || begin->Type() == TokenType::Constant)
 				return new TokenNode(*begin);
 
-			fprintf(stderr, "Invalid input\n");
-			dump_tokens(begin, end);
+			BCALC_PRINT_ERROR(errors, begin, end, "Invalid input\n");
 			return nullptr;
 		}
 
@@ -136,11 +137,10 @@ namespace bcalc
 				while (comma + 1 != end && comma->Type() != TokenType::Comma)
 					comma++;
 
-				TokenNode* input = BuildTokenTree(start, comma);
+				TokenNode* input = BuildTokenTree(start, comma, errors);
 				if (!input)
 				{
-					fprintf(stderr, "Could not build function input\n");
-					dump_tokens(begin, end);
+					BCALC_PRINT_ERROR(errors, begin, end, "Could not build function input\n");
 					return nullptr;
 				}
 
@@ -154,8 +154,7 @@ namespace bcalc
 		auto op = LastOOO(begin, end);
 		if (op == end)
 		{
-			fprintf(stderr, "No operators found\n");
-			dump_tokens(begin, end);
+			BCALC_PRINT_ERROR(errors, begin, end, "No operators found\n\n");
 			return nullptr;
 		}
 
@@ -167,21 +166,19 @@ namespace bcalc
 		}
 		else
 		{
-			lhs = BuildTokenTree(begin, op);
+			lhs = BuildTokenTree(begin, op, errors);
 		}
 
 		if (!lhs) 
 		{
-			fprintf(stderr, "Could not build left node\n");
-			dump_tokens(begin, end);
+			BCALC_PRINT_ERROR(errors, begin, end, "Could not build left node\n");
 			return nullptr;
 		}
 
-		TokenNode* rhs = BuildTokenTree(op + 1, end);
+		TokenNode* rhs = BuildTokenTree(op + 1, end, errors);
 		if (!rhs) 
 		{
-			fprintf(stderr, "Could not build right node\n");
-			dump_tokens(begin, end);
+			BCALC_PRINT_ERROR(errors, begin, end, "Could not build right node\n");
 			return nullptr;
 		}
 		
@@ -189,9 +186,9 @@ namespace bcalc
 	}
 
 
-	TokenNode* Parser::BuildTokenTree(const std::vector<Token>& tokens)
+	TokenNode* Parser::BuildTokenTree(const std::vector<Token>& tokens, bool errors)
 	{
-		return BuildTokenTree(tokens.begin(), tokens.end());
+		return BuildTokenTree(tokens.begin(), tokens.end(), errors);
 	}
 
 }

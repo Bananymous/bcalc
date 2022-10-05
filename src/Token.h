@@ -21,6 +21,9 @@ namespace bcalc
 		Sqrt,
 		Log,
 		Exp,
+		Round,
+		Floor,
+		Ceil,
 		Count
 	};
 	static const std::unordered_map<std::string, FunctionType> s_string_to_function
@@ -34,6 +37,9 @@ namespace bcalc
 		{ "sqrt",   FunctionType::Sqrt   },
 		{ "log",    FunctionType::Log    },
 		{ "exp",    FunctionType::Exp    },
+		{ "round",  FunctionType::Round  },
+		{ "floor",  FunctionType::Floor  },
+		{ "ceil",   FunctionType::Ceil   },
 	};
 	static const std::unordered_map<FunctionType, std::string> s_function_to_string
 	{
@@ -46,6 +52,9 @@ namespace bcalc
 		{ FunctionType::Sqrt,   "sqrt"   },
 		{ FunctionType::Log,    "log"    },
 		{ FunctionType::Exp,    "exp"    },
+		{ FunctionType::Round,  "round"  },
+		{ FunctionType::Floor,  "floor"  },
+		{ FunctionType::Ceil,   "ceil"   },
 	};
 
 	enum class Constant

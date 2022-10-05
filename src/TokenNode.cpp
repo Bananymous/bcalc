@@ -22,7 +22,7 @@ namespace bcalc
 
 	static long double EvaluateFunction(FunctionType function, const std::vector<TokenNode*>& nodes)
 	{
-		static_assert(static_cast<int>(FunctionType::Count) == 9);
+		static_assert(static_cast<int>(FunctionType::Count) == 12);
 
 		switch (function)
 		{
@@ -56,7 +56,16 @@ namespace bcalc
 			case FunctionType::Exp:
 				assert(nodes.size() == 1);
 				return expl(nodes[0]->approximate());
-		}
+			case FunctionType::Round:
+				assert(nodes.size() == 1);
+				return roundl(nodes[0]->approximate());
+			case FunctionType::Floor:
+				assert(nodes.size() == 1);
+				return floorl(nodes[0]->approximate());
+			case FunctionType::Ceil:
+				assert(nodes.size() == 1);
+				return ceill(nodes[0]->approximate());
+			}
 
 		assert(false);
 	}

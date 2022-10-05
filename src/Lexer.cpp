@@ -45,7 +45,6 @@ namespace bcalc
 				result.push_back(Token::Create(it->second));
 			else
 			{
-				fprintf(stderr, "Unknown character\n", data[i]);
 				return {};
 			}
 		}

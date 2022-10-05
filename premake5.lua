@@ -15,6 +15,10 @@ project "bcalc"
 
     includedirs "src"
 
+	links {
+		"ncurses"
+	}
+
     filter "configurations:Debug"  
         symbols "On"
 
