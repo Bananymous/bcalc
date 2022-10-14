@@ -13,10 +13,10 @@ namespace bcalc
 	enum class FunctionType
 	{
 		Sin,
-		Cos,
-		Tan,
 		ArcSin,
+		Cos,
 		ArcCos,
+		Tan,
 		ArcTan,
 		Sqrt,
 		Log,
@@ -80,6 +80,7 @@ namespace bcalc
 		Constant,
 		String,
 		Comma,
+		Equals,
 		Function,
 		LParan,
 		RParan,
@@ -92,14 +93,15 @@ namespace bcalc
 	};
 	static const std::unordered_map<char, TokenType> s_char_to_token
 	{
-		{ ',', TokenType::Comma },
+		{ ',', TokenType::Comma  },
+		{ '=', TokenType::Equals },
 		{ '(', TokenType::LParan },
 		{ ')', TokenType::RParan },
-		{ '*', TokenType::Mult },
-		{ '/', TokenType::Div },
-		{ '+', TokenType::Add },
-		{ '-', TokenType::Sub },
-		{ '^', TokenType::Power },
+		{ '*', TokenType::Mult   },
+		{ '/', TokenType::Div    },
+		{ '+', TokenType::Add    },
+		{ '-', TokenType::Sub    },
+		{ '^', TokenType::Power  },
 	};
 
 	class Token
@@ -141,7 +143,7 @@ namespace bcalc
 
 		std::string to_string() const
 		{
-			static_assert(static_cast<int>(TokenType::Count) == 12);
+			static_assert(static_cast<int>(TokenType::Count) == 13);
 
 			switch (m_type)
 			{
@@ -153,6 +155,8 @@ namespace bcalc
 					return "String, " + std::any_cast<std::string>(m_value);
 				case TokenType::Comma:
 					return "Comma";
+				case TokenType::Equals:
+					return "Equals";
 				case TokenType::Function:
 					return "Function, " + s_function_to_string.at(GetFunction());
 				case TokenType::LParan:
@@ -189,6 +193,11 @@ namespace bcalc
 		{
 			assert(m_type == TokenType::Function);
 			return std::any_cast<FunctionType>(m_value);
+		}
+		std::string GetString() const
+		{
+			assert(m_type == TokenType::String);
+			return std::any_cast<std::string>(m_value);
 		}
 
 	private:

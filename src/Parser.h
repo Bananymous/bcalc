@@ -8,6 +8,6 @@
 namespace bcalc::Parser
 {
 	
-	TokenNode* BuildTokenTree(const std::vector<Token>&, bool errors = false);
+	TokenNode* BuildTokenTree(std::vector<Token>::const_iterator begin, std::vector<Token>::const_iterator end, bool errors = false);
 
 }

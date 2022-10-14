@@ -96,7 +96,7 @@ namespace bcalc
 			fprintf(stderr, "%s\n", it->to_string().c_str());
 	}
 
-	static TokenNode* BuildTokenTree(it begin, it end, bool errors)
+	TokenNode* Parser::BuildTokenTree(it begin, it end, bool errors)
 	{
 		if (!IsValid(begin, end))
 		{
@@ -118,7 +118,7 @@ namespace bcalc
 
 		if (std::distance(begin, end) == 1)
 		{
-			if (begin->Type() == TokenType::Value || begin->Type() == TokenType::Constant)
+			if (begin->Type() == TokenType::Value || begin->Type() == TokenType::Constant || begin->Type() == TokenType::String)
 				return new TokenNode(*begin);
 
 			BCALC_PRINT_ERROR(errors, begin, end, "Invalid input\n");
@@ -183,12 +183,6 @@ namespace bcalc
 		}
 		
 		return new TokenNode(*op, { lhs, rhs });
-	}
-
-
-	TokenNode* Parser::BuildTokenTree(const std::vector<Token>& tokens, bool errors)
-	{
-		return BuildTokenTree(tokens.begin(), tokens.end(), errors);
 	}
 
 }

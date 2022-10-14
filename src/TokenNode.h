@@ -17,7 +17,7 @@ namespace bcalc
 				delete node;
 		}
 
-		long double approximate() const;
+		bool approximate(const std::unordered_map<std::string, long double>& variables, long double& out_result) const;
 
 		std::string to_string(uint64_t indent = 0) const;
 

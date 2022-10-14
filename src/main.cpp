@@ -50,6 +50,8 @@ int ProgramLoop()
 
 	std::vector<std::string> inputs;
 
+	std::unordered_map<std::string, long double> variables;
+
 	while (true)
 	{
 		std::vector<std::string> copy = inputs;
@@ -119,12 +121,32 @@ int ProgramLoop()
 		auto tokens = bcalc::Lexer::Tokenize(input);
 		if (!tokens.empty())
 		{
-			bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens);
-			if (root)
-				printw("= %Lf\n", root->approximate());
+			long double result;
+			
+			if (tokens.size() > 2 && tokens[0].Type() == bcalc::TokenType::String && tokens[1].Type() == bcalc::TokenType::Equals)
+			{
+				bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens.begin() + 2, tokens.end());
+				if (root && root->approximate(variables, result))
+				{
+					const auto& var = tokens[0].GetString();
+					for (std::size_t i = 0; i < var.size(); i++)
+						printw(" ");
+					printw(" = %Lf\n", result);
+					variables[var] = result;
+				}
+				else
+					printw("Invalid input\n");
+				delete root;
+			}
 			else
-				printw("Invalid input\n");
-			delete root;
+			{
+				bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens.begin(), tokens.end());
+				if (root && root->approximate(variables, result))
+					printw("= %Lf\n", result);
+				else
+					printw("Invalid input\n");
+				delete root;
+			}
 		}
 		else
 			printw("Invalid input\n");
@@ -172,7 +194,7 @@ int main(int argc, char** argv)
 		printf("%s\n", token.to_string().c_str());
 #endif
 
-	bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens);
+	bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens.begin(), tokens.end());
 	if (root == nullptr)
 	{
 		fprintf(stderr, "Invalid input\n");
@@ -182,10 +204,13 @@ int main(int argc, char** argv)
 	if (dump_tree)
 		printf("%s", root->to_string().c_str());
 
-	long double result = root->approximate();
-	delete root;
+	long double result;
+	if (root->approximate({}, result))
+		std::cout << result << std::endl;
+	else
+		fprintf(stderr, "Invalid input\n");
 
-	std::cout << result << std::endl;
+	delete root;
 
 	return 0;
 }
