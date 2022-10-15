@@ -5,12 +5,6 @@
 namespace bcalc
 {
 
-	struct UserFunction
-	{
-		std::vector<std::string> parameters;
-		TokenNode* expression;
-	};
-
 	class Program
 	{
 	public:
@@ -20,8 +14,8 @@ namespace bcalc
 		CalcResult Process(std::string_view input);
 
 	private:
-		std::unordered_map<std::string, value_type>		m_variables;
-		std::unordered_map<std::string, UserFunction>	m_functions;
+		VariableList m_variables;
+		FunctionList m_functions;
 	};
 
 }

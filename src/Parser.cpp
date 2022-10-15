@@ -125,7 +125,7 @@ namespace bcalc
 			return nullptr;
 		}
 
-		if (begin->Type() == TokenType::BuiltinFunction && IsInParenthesis(begin + 1, end))
+		if ((begin->Type() == TokenType::BuiltinFunction || begin->Type() == TokenType::String) && IsInParenthesis(begin + 1, end))
 		{
 			std::vector<TokenNode*> inputs;
 

@@ -38,14 +38,14 @@ namespace bcalc
 				if (!root)
 					return error;
 				
-				auto result = root->approximate(m_variables);
+				auto result = root->approximate(m_variables, m_functions);
 				delete root;
 
 				if (result.has_error)
 					return error;
 				
 				m_variables[tokens[0].GetString()] = result.value;
-				return { .has_value = true, .value = result.value };
+				return { .value = result.value };
 			}
 			// Function
 			else
@@ -90,13 +90,13 @@ namespace bcalc
 			if (!root)
 				return error;
 			
-			auto result = root->approximate(m_variables);
+			auto result = root->approximate(m_variables, m_functions);
 			delete root;
 
 			if (result.has_error)
 				return error;
 			
-			return { .has_value = true, .value = result.value };
+			return { .value = result.value };
 		}
 	}
 

@@ -8,12 +8,23 @@ namespace bcalc
 {
 	using value_type = long double;
 
+	class TokenNode;
+
 	struct CalcResult
 	{
 		bool has_error = false;
-		bool has_value = false; // only used in return value of 'Program::Process()'
+		bool has_value = true; // only used in return value of 'Program::Process()'
 		value_type value = value_type(0);
 	};
+
+	struct UserFunction
+	{
+		std::vector<std::string> parameters;
+		TokenNode* expression;
+	};
+
+	using VariableList = std::unordered_map<std::string, value_type>;
+	using FunctionList = std::unordered_map<std::string, UserFunction>;
 
 	class TokenNode
 	{
@@ -25,7 +36,7 @@ namespace bcalc
 				delete node;
 		}
 
-		CalcResult approximate(const std::unordered_map<std::string, value_type>& variables) const;
+		CalcResult approximate(const VariableList& variables, const FunctionList& functions) const;
 
 		std::string to_string(uint64_t indent = 0) const;
 

@@ -20,7 +20,7 @@ namespace bcalc
 		assert(false);
 	}
 
-	static CalcResult EvaluateFunction(FunctionType function, const std::vector<TokenNode*>& nodes, const std::unordered_map<std::string, value_type>& variables)
+	static CalcResult EvaluateFunction(FunctionType function, const std::vector<TokenNode*>& nodes, const VariableList& variables, const FunctionList& functions)
 	{
 		static_assert(static_cast<int>(FunctionType::Count) == 12);
 
@@ -29,7 +29,7 @@ namespace bcalc
 		std::vector<long double> inputs;
 		for (TokenNode* node : nodes)
 		{
-			auto result = node->approximate(variables);
+			auto result = node->approximate(variables, functions);
 			if (result.has_error)
 				return error;
 			inputs.push_back(result.value);
@@ -97,7 +97,7 @@ namespace bcalc
 		, m_token(token)
 	{}
 
-	CalcResult TokenNode::approximate(const std::unordered_map<std::string, value_type>& variables) const
+	CalcResult TokenNode::approximate(const VariableList& variables, const FunctionList& functions) const
 	{
 		CalcResult error { .has_error = true };
 
@@ -109,19 +109,43 @@ namespace bcalc
 
 		if (m_token.Type() == TokenType::String)
 		{
-			if (variables.find(m_token.GetString()) == variables.end())
-				return error;
-			return { .value = variables.at(m_token.GetString()) };
+			if (auto it = variables.find(m_token.GetString()); it != variables.end())
+				return { .value = it->second };
+
+			if (auto it = functions.find(m_token.GetString()); it != functions.end())
+			{
+				const auto& func = it->second;
+				if (m_nodes.size() != func.parameters.size())
+					return error;
+
+				// Add function parameters to variables.
+				// FIXME: variables and parameters with same name
+				VariableList parameters = variables;
+				for (std::size_t i = 0; i < m_nodes.size(); i++)
+				{
+					auto result = m_nodes[i]->approximate(variables, functions);
+					if (result.has_error)
+						return error;
+					parameters[func.parameters[i]] = result.value;
+				}
+
+				auto result = func.expression->approximate(parameters, functions);
+				if (result.has_error)
+					return error;
+				return { .value = result.value };
+			}
+
+			return error;
 		}
 
 		if (m_token.Type() == TokenType::BuiltinFunction)
-			return EvaluateFunction(m_token.GetBuiltinFunction(), m_nodes, variables);
+			return EvaluateFunction(m_token.GetBuiltinFunction(), m_nodes, variables, functions);
 			
 		if (m_nodes.size() != 2)
 			return error;
 
-		auto lhs = m_nodes[0]->approximate(variables);
-		auto rhs = m_nodes[1]->approximate(variables);
+		auto lhs = m_nodes[0]->approximate(variables, functions);
+		auto rhs = m_nodes[1]->approximate(variables, functions);
 
 		if (lhs.has_error || rhs.has_error)
 			return error;
@@ -142,8 +166,7 @@ namespace bcalc
 	{
 		std::string result;
 		result.append(indent, ' ');
-		result += m_token.to_string();
-		result += '\n';
+		result += m_token.to_string() + '\n';
 		for (TokenNode* node : m_nodes)
 			result += node->to_string(indent + 2);
 		return result;
