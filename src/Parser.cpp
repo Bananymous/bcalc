@@ -127,11 +127,15 @@ namespace bcalc
 
 		if ((begin->Type() == TokenType::BuiltinFunction || begin->Type() == TokenType::String) && IsInParenthesis(begin + 1, end))
 		{
+			// explicitly allow functions with no parameters
+			if (std::distance(begin, end) == 3)
+				return new TokenNode(*begin);
+
 			std::vector<TokenNode*> inputs;
 
 			it comma = begin + 1;
 
-			do
+			while (comma + 1 < end)
 			{
 				it start = ++comma;
 				while (comma + 1 != end && comma->Type() != TokenType::Comma)
@@ -146,7 +150,6 @@ namespace bcalc
 
 				inputs.push_back(input);
 			}
-			while (comma + 1 != end);
 
 			return new TokenNode(*begin, inputs);
 		}

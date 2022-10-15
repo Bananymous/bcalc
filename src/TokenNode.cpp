@@ -114,22 +114,25 @@ namespace bcalc
 
 			if (auto it = functions.find(m_token.GetString()); it != functions.end())
 			{
-				const auto& func = it->second;
-				if (m_nodes.size() != func.parameters.size())
+				const auto& func_overloads = it->second;
+
+				auto overload_it = func_overloads.find(m_nodes.size());
+				if (overload_it == func_overloads.end())
 					return error;
 
+				const auto& overload = overload_it->second;
+
 				// Add function parameters to variables.
-				// FIXME: variables and parameters with same name
 				VariableList parameters = variables;
 				for (std::size_t i = 0; i < m_nodes.size(); i++)
 				{
 					auto result = m_nodes[i]->approximate(variables, functions);
 					if (result.has_error)
 						return error;
-					parameters[func.parameters[i]] = result.value;
+					parameters[overload.parameters[i]] = result.value;
 				}
 
-				auto result = func.expression->approximate(parameters, functions);
+				auto result = overload.expression->approximate(parameters, functions);
 				if (result.has_error)
 					return error;
 				return { .value = result.value };

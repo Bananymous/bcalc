@@ -24,7 +24,7 @@ namespace bcalc
 	};
 
 	using VariableList = std::unordered_map<std::string, value_type>;
-	using FunctionList = std::unordered_map<std::string, UserFunction>;
+	using FunctionList = std::unordered_map<std::string, std::unordered_map<std::size_t, UserFunction>>;
 
 	class TokenNode
 	{

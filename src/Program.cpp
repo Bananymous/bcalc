@@ -13,8 +13,9 @@ namespace bcalc
 
 	Program::~Program()
 	{
-		for (auto& [name, func] : m_functions)
-			delete func.expression;
+		for (auto& [_, overloads] : m_functions)
+			for (auto& [_, func] : overloads)
+				delete func.expression;
 	}
 
 	CalcResult Program::Process(std::string_view input)
@@ -78,7 +79,11 @@ namespace bcalc
 				if (!root)
 					return error;
 
-				m_functions[tokens[0].GetString()] = { .parameters = std::move(parameters), .expression = root };
+				std::size_t param_count = parameters.size();
+				m_functions[tokens[0].GetString()][param_count] = {
+					.parameters = std::move(parameters),
+					.expression = root
+				};
 
 				return { .has_value = false };
 			}
