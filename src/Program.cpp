@@ -26,7 +26,7 @@ namespace bcalc
 		// Assignment
 		if (auto it = std::find_if(tokens.begin(), tokens.end(), [](const auto& token) { return token.Type() == TokenType::Equals; }); it != tokens.end())
 		{
-			if (tokens.size() <= 2 && tokens.front().Type() != TokenType::String)
+			if (tokens.size() <= 2 || tokens.front().Type() != TokenType::String)
 				return ProcessResult { .has_error = true };
 			
 			// Variable
