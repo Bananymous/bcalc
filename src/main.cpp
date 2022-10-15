@@ -33,6 +33,7 @@ int GetChar()
 				case 68: return KEY_LEFT;
 				default: break;
 			}
+			break;
 	}
 
 	return ERR;
@@ -117,54 +118,11 @@ int ProgramLoop()
 			continue;
 		}
 
-
-
-
 		auto result = program.Process(input);
-
 		if (result.has_error)
-		{
-			printw("Invalid input\n");
-
-			
-		}
+			printw("Invalid input\n");	
 		else if (result.has_value)
-		{
 			printw(" = %Lf\n", result.value);
-		}
-
-#if 0
-		auto tokens = bcalc::Lexer::Tokenize(input);
-		if (!tokens.empty())
-		{
-			long double result;
-			
-			if (tokens.size() > 2 && tokens[0].Type() == bcalc::TokenType::String && tokens[1].Type() == bcalc::TokenType::Equals)
-			{
-				bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens.begin() + 2, tokens.end());
-				if (root && root->approximate(variables, result))
-				{
-					const auto& var = tokens[0].GetString();
-					printw(" = %Lf\n", result);
-					variables[var] = result;
-				}
-				else
-					printw("Invalid input\n");
-				delete root;
-			}
-			else
-			{
-				bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens.begin(), tokens.end());
-				if (root && root->approximate(variables, result))
-					printw("= %Lf\n", result);
-				else
-					printw("Invalid input\n");
-				delete root;
-			}
-		}
-		else
-			printw("Invalid input\n");
-#endif
 
 		index++;
 		inputs.push_back(input);
