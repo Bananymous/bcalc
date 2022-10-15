@@ -10,6 +10,15 @@ namespace bcalc
 	class TokenNode
 	{
 	public:
+		using value_type = long double;
+
+		struct ApproximateResult
+		{
+			bool has_error = false;
+			value_type value = value_type(0);
+		};
+
+	public:
 		TokenNode(Token token, std::vector<TokenNode*> nodes = {});
 		~TokenNode()
 		{
@@ -17,7 +26,7 @@ namespace bcalc
 				delete node;
 		}
 
-		bool approximate(const std::unordered_map<std::string, long double>& variables, long double& out_result) const;
+		ApproximateResult approximate(const std::unordered_map<std::string, value_type>& variables) const;
 
 		std::string to_string(uint64_t indent = 0) const;
 

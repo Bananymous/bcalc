@@ -10,6 +10,7 @@ project "bcalc"
 		"src/Lexer.cpp",
         "src/main.cpp",
 		"src/Parser.cpp",
+		"src/Program.cpp",
 		"src/TokenNode.cpp",
     }
 

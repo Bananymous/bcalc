@@ -20,86 +20,76 @@ namespace bcalc
 		assert(false);
 	}
 
-	static bool EvaluateFunction(FunctionType function, const std::vector<TokenNode*>& nodes, const std::unordered_map<std::string, long double>& variables, long double& out_result)
+	static TokenNode::ApproximateResult EvaluateFunction(FunctionType function, const std::vector<TokenNode*>& nodes, const std::unordered_map<std::string, TokenNode::value_type>& variables)
 	{
 		static_assert(static_cast<int>(FunctionType::Count) == 12);
+
+		auto error = TokenNode::ApproximateResult { .has_error = true };
 
 		std::vector<long double> inputs;
 		for (TokenNode* node : nodes)
 		{
-			inputs.push_back(0.0L);
-			if (!node->approximate(variables, inputs.back()))
-				return false;
+			auto result = node->approximate(variables);
+			if (result.has_error)
+				return error;
+			inputs.push_back(result.value);
 		}
 
 		switch (function)
 		{
 			case FunctionType::Sin:
 				if (inputs.size() != 1)
-					return false;
-				out_result = sinl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = sinl(inputs[0]) };
 			case FunctionType::ArcSin:
 				if (inputs.size() != 1)
-					return false;
-				out_result = asinl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = asinl(inputs[0]) };
 			case FunctionType::Cos:
 				if (inputs.size() != 1)
-					return false;
-				out_result = cosl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = cosl(inputs[0]) };
 			case FunctionType::ArcCos:
 				if (inputs.size() != 1)
-					return false;
-				out_result = acosl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = acosl(inputs[0]) };
 			case FunctionType::Tan:
 				if (inputs.size() != 1)
-					return false;
-				out_result = tanl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = tanl(inputs[0]) };
 			case FunctionType::ArcTan:
 				if (inputs.size() != 1)
-					return false;
-				out_result = atanl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = atanl(inputs[0]) };
 			case FunctionType::Sqrt:
 				if (inputs.size() != 1)
-					return false;
-				out_result = sqrtl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = sqrtl(inputs[0]) };
 			case FunctionType::Log:
 				if (inputs.size() == 1)
-					out_result = logl(inputs[0]);
+					return TokenNode::ApproximateResult { .value = logl(inputs[0]) };
 				else if (inputs.size() == 2)
-					out_result = logl(inputs[0]) / logl(inputs[1]);
-				else
-					return false;
-				return true;
+					return TokenNode::ApproximateResult { .value = logl(inputs[0]) / logl(inputs[1]) };
+				return error;
 			case FunctionType::Exp:
 				if (inputs.size() != 1)
-					return false;
-				out_result = expl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = expl(inputs[0]) };
 			case FunctionType::Round:
 				if (inputs.size() != 1)
-					return false;
-				out_result = roundl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = roundl(inputs[0]) };
 			case FunctionType::Floor:
 				if (inputs.size() != 1)
-					return false;
-				out_result = floorl(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = floorl(inputs[0]) };
 			case FunctionType::Ceil:
 				if (inputs.size() != 1)
-					return false;
-				out_result = ceill(inputs[0]);
-				return true;
+					return error;
+				return TokenNode::ApproximateResult { .value = ceill(inputs[0]) };
 			}
 
-		return false;
+		return error;
 	}
 
 	TokenNode::TokenNode(Token token, std::vector<TokenNode*> nodes)
@@ -107,50 +97,45 @@ namespace bcalc
 		, m_token(token)
 	{}
 
-	bool TokenNode::approximate(const std::unordered_map<std::string, long double>& variables, long double& out_result) const
+	TokenNode::ApproximateResult TokenNode::approximate(const std::unordered_map<std::string, value_type>& variables) const
 	{
+		auto error = ApproximateResult { .has_error = true };
+
 		if (m_token.Type() == TokenType::Value)
-		{
-			out_result = m_token.GetValue();
-			return true;
-		}
+			return ApproximateResult { .value = m_token.GetValue() };
 
 		if (m_token.Type() == TokenType::Constant)
-		{
-			out_result = EvaluateConstant(m_token.GetConstant());
-			return true;
-		}
+			return ApproximateResult { .value = EvaluateConstant(m_token.GetConstant()) };
 
 		if (m_token.Type() == TokenType::String)
 		{
 			if (variables.find(m_token.GetString()) == variables.end())
-				return false;
-			out_result = variables.at(m_token.GetString());
-			return true;
+				return error;
+			return ApproximateResult { .value = variables.at(m_token.GetString()) };
 		}
 
-		if (m_token.Type() == TokenType::Function)
-		{
-			return EvaluateFunction(m_token.GetFunction(), m_nodes, variables, out_result);
-		}
-
+		if (m_token.Type() == TokenType::BuiltinFunction)
+			return EvaluateFunction(m_token.GetBuiltinFunction(), m_nodes, variables);
+			
 		if (m_nodes.size() != 2)
-			return false;
+			return error;
 
-		long double lhs, rhs;
-		m_nodes[0]->approximate(variables, lhs);
-		m_nodes[1]->approximate(variables, rhs);
+		auto lhs = m_nodes[0]->approximate(variables);
+		auto rhs = m_nodes[1]->approximate(variables);
+
+		if (lhs.has_error || rhs.has_error)
+			return error;
 
 		switch (m_token.Type())
 		{
-			case TokenType::Add:	out_result = lhs + rhs;			return true;
-			case TokenType::Sub:	out_result = lhs - rhs;			return true;
-			case TokenType::Mult:	out_result = lhs * rhs;			return true;
-			case TokenType::Div:	out_result = lhs / rhs;			return true;
-			case TokenType::Power:	out_result = powl(lhs, rhs);	return true;
+			case TokenType::Add:	return ApproximateResult { .value = lhs.value + rhs.value };
+			case TokenType::Sub:	return ApproximateResult { .value = lhs.value - rhs.value };
+			case TokenType::Mult:	return ApproximateResult { .value = lhs.value * rhs.value };
+			case TokenType::Div:	return ApproximateResult { .value = lhs.value / rhs.value };
+			case TokenType::Power:	return ApproximateResult { .value = powl(lhs.value, rhs.value) };
 		}
 
-		return false;
+		return error;
 	}
 
 	std::string TokenNode::to_string(uint64_t indent) const

@@ -81,7 +81,7 @@ namespace bcalc
 		String,
 		Comma,
 		Equals,
-		Function,
+		BuiltinFunction,
 		LParan,
 		RParan,
 		Mult,
@@ -120,9 +120,9 @@ namespace bcalc
 			return Token { TokenType::String, std::move(string) };
 		}
 
-		static Token CreateFunction(FunctionType function)
+		static Token CreateBuiltinFunction(FunctionType function)
 		{
-			return Token { TokenType::Function, function };
+			return Token { TokenType::BuiltinFunction, function };
 		}
 
 		static Token CreateConstant(Constant constant)
@@ -135,7 +135,7 @@ namespace bcalc
 			assert( type != TokenType::Count &&
 					type != TokenType::Value &&
 					type != TokenType::String &&
-					type != TokenType::Function
+					type != TokenType::BuiltinFunction
 			);
 
 			return Token { type };
@@ -157,8 +157,8 @@ namespace bcalc
 					return "Comma";
 				case TokenType::Equals:
 					return "Equals";
-				case TokenType::Function:
-					return "Function, " + s_function_to_string.at(GetFunction());
+				case TokenType::BuiltinFunction:
+					return "Function, " + s_function_to_string.at(GetBuiltinFunction());
 				case TokenType::LParan:
 					return "LParan";
 				case TokenType::RParan:
@@ -189,9 +189,9 @@ namespace bcalc
 			assert(m_type == TokenType::Constant);
 			return std::any_cast<Constant>(m_value);
 		}
-		FunctionType GetFunction() const
+		FunctionType GetBuiltinFunction() const
 		{
-			assert(m_type == TokenType::Function);
+			assert(m_type == TokenType::BuiltinFunction);
 			return std::any_cast<FunctionType>(m_value);
 		}
 		std::string GetString() const

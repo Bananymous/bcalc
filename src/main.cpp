@@ -1,5 +1,4 @@
-#include "Lexer.h"
-#include "Parser.h"
+#include "Program.h"
 
 #include <cstdio>
 #include <cstring>
@@ -49,8 +48,8 @@ int ProgramLoop()
 	}
 
 	std::vector<std::string> inputs;
-
-	std::unordered_map<std::string, long double> variables;
+	
+	bcalc::Program program;
 
 	while (true)
 	{
@@ -118,6 +117,21 @@ int ProgramLoop()
 			continue;
 		}
 
+
+
+
+		auto result = program.Process(input);
+
+		if (result.has_error)
+		{
+			printw("Invalid input\n");
+		}
+		else if (result.has_value)
+		{
+			printw(" = %Lf\n", result.value);
+		}
+
+#if 0
 		auto tokens = bcalc::Lexer::Tokenize(input);
 		if (!tokens.empty())
 		{
@@ -129,8 +143,6 @@ int ProgramLoop()
 				if (root && root->approximate(variables, result))
 				{
 					const auto& var = tokens[0].GetString();
-					for (std::size_t i = 0; i < var.size(); i++)
-						printw(" ");
 					printw(" = %Lf\n", result);
 					variables[var] = result;
 				}
@@ -150,6 +162,7 @@ int ProgramLoop()
 		}
 		else
 			printw("Invalid input\n");
+#endif
 
 		index++;
 		inputs.push_back(input);
@@ -182,35 +195,19 @@ int main(int argc, char** argv)
 			return 1;
 	}
 
-	auto tokens = bcalc::Lexer::Tokenize(argv[argc - 1]);
-	if (tokens.empty())
+	bcalc::Program program;
+
+	auto result = program.Process(argv[argc - 1]);
+	if (result.has_error)
 	{
 		fprintf(stderr, "Invalid input\n");
 		return 1;
 	}
 
-#if 0
-	for (const auto& token : tokens)
-		printf("%s\n", token.to_string().c_str());
-#endif
-
-	bcalc::TokenNode* root = bcalc::Parser::BuildTokenTree(tokens.begin(), tokens.end());
-	if (root == nullptr)
+	if (result.has_value)
 	{
-		fprintf(stderr, "Invalid input\n");
-		return 1;
+		printf(" = %Lf\n", result.value);
 	}
-
-	if (dump_tree)
-		printf("%s", root->to_string().c_str());
-
-	long double result;
-	if (root->approximate({}, result))
-		std::cout << result << std::endl;
-	else
-		fprintf(stderr, "Invalid input\n");
-
-	delete root;
 
 	return 0;
 }
