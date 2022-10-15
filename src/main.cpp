@@ -2,7 +2,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <iostream>
 
 #include <ncurses.h>
 
@@ -157,16 +156,22 @@ int main(int argc, char** argv)
 
 	bcalc::Program program;
 
-	auto result = program.Process(argv[argc - 1]);
-	if (result.has_error)
+	std::string_view input = argv[argc - 1];
+	std::size_t s = 0;
+	while (true)
 	{
-		fprintf(stderr, "Invalid input\n");
-		return 1;
-	}
+		std::size_t e = input.find(';', s);
 
-	if (result.has_value)
-	{
-		printf(" = %Lf\n", result.value);
+		auto expr = input.substr(s, e - s);
+		auto result = program.Process(expr);
+		if (result.has_error)
+			printf("Invalid input\n");
+		else if (result.has_value && expr.find('=') == std::string_view::npos)
+			printf("= %Lf\n", result.value);
+
+		if (e == std::string_view::npos)
+			break;
+		s = e + 1;
 	}
 
 	return 0;
