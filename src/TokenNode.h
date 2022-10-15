@@ -6,18 +6,17 @@
 
 namespace bcalc
 {
+	using value_type = long double;
+
+	struct CalcResult
+	{
+		bool has_error = false;
+		bool has_value = false; // only used in return value of 'Program::Process()'
+		value_type value = value_type(0);
+	};
 
 	class TokenNode
 	{
-	public:
-		using value_type = long double;
-
-		struct ApproximateResult
-		{
-			bool has_error = false;
-			value_type value = value_type(0);
-		};
-
 	public:
 		TokenNode(Token token, std::vector<TokenNode*> nodes = {});
 		~TokenNode()
@@ -26,7 +25,7 @@ namespace bcalc
 				delete node;
 		}
 
-		ApproximateResult approximate(const std::unordered_map<std::string, value_type>& variables) const;
+		CalcResult approximate(const std::unordered_map<std::string, value_type>& variables) const;
 
 		std::string to_string(uint64_t indent = 0) const;
 

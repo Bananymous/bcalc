@@ -125,6 +125,8 @@ int ProgramLoop()
 		if (result.has_error)
 		{
 			printw("Invalid input\n");
+
+			
 		}
 		else if (result.has_value)
 		{
