@@ -1,77 +1,123 @@
 #pragma once
 
 #include <any>
-#include <cassert>
-#include <cstdint>
-#include <functional>
+#include <complex>
 #include <string>
 #include <unordered_map>
 
 namespace bcalc
 {
+	using value_type = long double;
+
+	template<typename T>
+	static std::string complex_to_string(const std::complex<T>& complex)
+	{
+		std::stringstream ss;
+
+		if (complex.real() != 0)
+		{
+			if (complex.imag() != 0)
+				ss << complex.real() << (complex.imag() < 0 ? " - " : " + ") << std::abs(complex.imag()) << " i";
+			else
+				ss << complex.real();
+		}
+		else
+		{
+			if (complex.imag() != 0)
+				ss << complex.imag() << " i";
+			else
+				ss << "0";
+		}
+
+		return ss.str();
+	}
 
 	enum class FunctionType
 	{
-		Sin,
-		ArcSin,
-		Cos,
-		ArcCos,
-		Tan,
-		ArcTan,
+		Sin, ArcSin, Sinh, ArcSinh,
+		Cos, ArcCos, Cosh, ArcCosh,
+		Tan, ArcTan, Tanh, ArcTanh,
 		Sqrt,
 		Log,
 		Exp,
-		Round,
-		Floor,
-		Ceil,
+		Round, Floor, Ceil,
 		Count
 	};
 	static const std::unordered_map<std::string, FunctionType> s_string_to_function
 	{
-		{ "sin",    FunctionType::Sin    },
-		{ "arcsin", FunctionType::ArcSin },
-		{ "cos",    FunctionType::Cos    },
-		{ "arccos", FunctionType::ArcCos },
-		{ "tan",    FunctionType::Tan    },
-		{ "arctan", FunctionType::ArcTan },
-		{ "sqrt",   FunctionType::Sqrt   },
-		{ "log",    FunctionType::Log    },
-		{ "exp",    FunctionType::Exp    },
-		{ "round",  FunctionType::Round  },
-		{ "floor",  FunctionType::Floor  },
-		{ "ceil",   FunctionType::Ceil   },
+		{ "sin",     FunctionType::Sin     },
+		{ "sinh",    FunctionType::Sinh    },
+		{ "asin",    FunctionType::ArcSin  },
+		{ "asinh",   FunctionType::ArcSinh },
+		{ "arcsin",  FunctionType::ArcSin  },
+		{ "arcsinh", FunctionType::ArcSinh },
+
+		{ "cos",     FunctionType::Cos     },
+		{ "cosh",    FunctionType::Cosh    },
+		{ "acos",    FunctionType::ArcCos  },
+		{ "acosh",   FunctionType::ArcCosh },
+		{ "arccos",  FunctionType::ArcCos  },
+		{ "arccosh", FunctionType::ArcCosh },
+
+		{ "tan",     FunctionType::Tan     },
+		{ "tanh",    FunctionType::Tanh    },
+		{ "atan",    FunctionType::ArcTan  },
+		{ "atanh",   FunctionType::ArcTanh },
+		{ "arctan",  FunctionType::ArcTan  },
+		{ "arctanh", FunctionType::ArcTanh },
+
+		{ "sqrt",    FunctionType::Sqrt    },
+		{ "log",     FunctionType::Log     },
+		{ "exp",     FunctionType::Exp     },
+
+		{ "round",   FunctionType::Round   },
+		{ "floor",   FunctionType::Floor   },
+		{ "ceil",    FunctionType::Ceil    },
 	};
 	static const std::unordered_map<FunctionType, std::string> s_function_to_string
 	{
-		{ FunctionType::Sin,    "sin"    },
-		{ FunctionType::ArcSin, "arcsin" },
-		{ FunctionType::Cos,    "cos"    },
-		{ FunctionType::ArcCos, "arccos" },
-		{ FunctionType::Tan,    "tan"    },
-		{ FunctionType::ArcTan, "arctan" },
-		{ FunctionType::Sqrt,   "sqrt"   },
-		{ FunctionType::Log,    "log"    },
-		{ FunctionType::Exp,    "exp"    },
-		{ FunctionType::Round,  "round"  },
-		{ FunctionType::Floor,  "floor"  },
-		{ FunctionType::Ceil,   "ceil"   },
+		{ FunctionType::Sin,     "sin"     },
+		{ FunctionType::ArcSin,  "arcsin"  },
+		{ FunctionType::Sinh,    "sinh"    },
+		{ FunctionType::ArcSinh, "arcsinh" },
+
+		{ FunctionType::Cos,     "cos"     },
+		{ FunctionType::ArcCos,  "arccosh" },
+		{ FunctionType::Cosh,    "cosh"    },
+		{ FunctionType::ArcCosh, "arccos"  },
+
+		{ FunctionType::Tan,     "tan"     },
+		{ FunctionType::ArcTan,  "arctanh" },
+		{ FunctionType::Tanh,    "tanh"    },
+		{ FunctionType::ArcTanh, "arctan"  },
+
+		{ FunctionType::Sqrt,    "sqrt"    },
+		{ FunctionType::Log,     "log"     },
+		{ FunctionType::Exp,     "exp"     },
+		
+		{ FunctionType::Round,   "round"   },
+		{ FunctionType::Floor,   "floor"   },
+		{ FunctionType::Ceil,    "ceil"    },
 	};
 
 	enum class Constant
 	{
 		pi,
 		e,
+		i,
 		Count
 	};
 	static const std::unordered_map<std::string, Constant> s_string_to_constant
 	{
 		{ "pi", Constant::pi },
-		{ "e",  Constant::e  }
+		{ "e",  Constant::e  },
+		{ "i",  Constant::i  },
 	};
 	static const std::unordered_map<Constant, std::string> s_constant_to_string
 	{
 		{ Constant::pi, "pi" },
 		{ Constant::e,  "e"  },
+		{ Constant::i,  "i"  },
 	};
 
 	enum class TokenType
@@ -107,103 +153,22 @@ namespace bcalc
 	class Token
 	{
 	public:
-		using value_type = long double;
+		static Token CreateValue(std::complex<value_type> value);
+		static Token CreateString(std::string string);
+		static Token CreateBuiltinFunction(FunctionType function);
+		static Token CreateConstant(Constant constant);
+		static Token Create(TokenType type);
 
-	public:
-		static Token CreateValue(value_type value)
-		{
-			return Token { TokenType::Value, value };
-		}
+		std::string to_string() const;
 
-		static Token CreateString(std::string string)
-		{
-			return Token { TokenType::String, std::move(string) };
-		}
-
-		static Token CreateBuiltinFunction(FunctionType function)
-		{
-			return Token { TokenType::BuiltinFunction, function };
-		}
-
-		static Token CreateConstant(Constant constant)
-		{
-			return Token { TokenType::Constant, constant };
-		}
-
-		static Token Create(TokenType type)
-		{
-			assert( type != TokenType::Count &&
-					type != TokenType::Value &&
-					type != TokenType::String &&
-					type != TokenType::BuiltinFunction
-			);
-
-			return Token { type };
-		}
-
-		std::string to_string() const
-		{
-			static_assert(static_cast<int>(TokenType::Count) == 13);
-
-			switch (m_type)
-			{
-				case TokenType::Value:
-					return "Value, " + std::to_string(GetValue());
-				case TokenType::Constant:
-					return "Constant, " + s_constant_to_string.at(GetConstant());
-				case TokenType::String:
-					return "String, " + std::any_cast<std::string>(m_value);
-				case TokenType::Comma:
-					return "Comma";
-				case TokenType::Equals:
-					return "Equals";
-				case TokenType::BuiltinFunction:
-					return "Function, " + s_function_to_string.at(GetBuiltinFunction());
-				case TokenType::LParan:
-					return "LParan";
-				case TokenType::RParan:
-					return "RParan";
-				case TokenType::Mult:
-					return "Mult";
-				case TokenType::Div:
-					return "Div";
-				case TokenType::Add:
-					return "Add";
-				case TokenType::Sub:
-					return "Sub";
-				case TokenType::Power:
-					return "Power";
-			}
-
-			return "";
-		}
-
-		TokenType Type() const { return m_type; }
-		value_type GetValue() const
-		{
-			assert(m_type == TokenType::Value);
-			return std::any_cast<value_type>(m_value);
-		}
-		Constant GetConstant() const
-		{
-			assert(m_type == TokenType::Constant);
-			return std::any_cast<Constant>(m_value);
-		}
-		FunctionType GetBuiltinFunction() const
-		{
-			assert(m_type == TokenType::BuiltinFunction);
-			return std::any_cast<FunctionType>(m_value);
-		}
-		std::string GetString() const
-		{
-			assert(m_type == TokenType::String);
-			return std::any_cast<std::string>(m_value);
-		}
+		TokenType Type()					const { return m_type; }
+		std::complex<value_type> GetValue()	const { return std::any_cast<std::complex<value_type>>(m_value); }
+		Constant GetConstant()				const { return std::any_cast<Constant>(m_value); }
+		FunctionType GetBuiltinFunction()	const { return std::any_cast<FunctionType>(m_value); }
+		std::string GetString()				const { return std::any_cast<std::string>(m_value); }
 
 	private:
-		Token(TokenType type, std::any value = std::any())
-			: m_type(type), m_value(value)
-		{}
+		Token(TokenType type, std::any value = std::any());
 
 	private:
 		TokenType	m_type	= TokenType::Count;

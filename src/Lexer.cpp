@@ -1,7 +1,7 @@
 #include "Lexer.h"
 
-#include <cstdlib>
-#include <cstdio>
+#include <cctype>
+#include <charconv>
 
 namespace bcalc
 {
@@ -17,11 +17,10 @@ namespace bcalc
 
 			if (isdigit(data[i]))
 			{
-				std::size_t len;
-
-				long double val = std::stold(data.data() + i, &len);
-				result.push_back(Token::CreateValue(val));
-				i += len - 1;
+				value_type value;
+				auto [ptr, _] = std::from_chars(data.data() + i, data.data() + data.size(), value);
+				result.push_back(Token::CreateValue(value));
+				i = ptr - data.data() - 1;
 				continue;
 			}
 

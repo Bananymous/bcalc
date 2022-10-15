@@ -4,6 +4,7 @@ workspace "bcalc"
 project "bcalc"
     kind "ConsoleApp"
     language "C++"
+	cppdialect "C++20"
     targetdir "bin/%{cfg.buildcfg}"
 
     files {
@@ -11,6 +12,7 @@ project "bcalc"
         "src/main.cpp",
 		"src/Parser.cpp",
 		"src/Program.cpp",
+		"src/Token.cpp",
 		"src/TokenNode.cpp",
     }
 

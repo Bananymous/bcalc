@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <sstream>
+
 #include <ncurses.h>
 
 int GetChar()
@@ -121,7 +123,7 @@ int ProgramLoop()
 		if (result.has_error)
 			printw("Invalid input\n");	
 		else if (result.has_value)
-			printw(" = %Lf\n", result.value);
+			printw(" = %s\n", bcalc::complex_to_string(result.value).c_str());
 
 		index++;
 		inputs.push_back(input);
@@ -167,7 +169,7 @@ int main(int argc, char** argv)
 		if (result.has_error)
 			printf("Invalid input\n");
 		else if (result.has_value && expr.find('=') == std::string_view::npos)
-			printf("= %Lf\n", result.value);
+			printf(" = %s\n", bcalc::complex_to_string(result.value).c_str());
 
 		if (e == std::string_view::npos)
 			break;

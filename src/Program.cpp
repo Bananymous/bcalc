@@ -3,6 +3,8 @@
 #include "Lexer.h"
 #include "Parser.h"
 
+#include <algorithm>
+
 namespace bcalc
 {
 
