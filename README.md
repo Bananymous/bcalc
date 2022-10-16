@@ -4,9 +4,9 @@ Minimal numeric calculator for linux written in C++ with ncurses.
 Supports complex numbers, variables and functions.
 
 # Dependencies
-bcalc itself only depends on ncurses and C++20 standard libraries.
+bcalc itself only depends on ncurses.
 
-You will also need git, premake5 and make for the build system.
+You will also need git, premake5, make and C++20 compliant compiler to build the packet.
 
 # Installation
 Building and installing from source
