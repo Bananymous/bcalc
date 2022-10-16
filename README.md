@@ -1,5 +1,5 @@
 # bcalc
-Minimal numeric calculator for linux written in C++ with ncurses.
+Minimal numeric calculator for linux (and probably mac) written in C++ with ncurses.
 
 Supports complex numbers, variables and functions.
 
@@ -24,7 +24,7 @@ sudo rm /usr/local/bin/bcalc
 ```
 
 # Usage
-bcalc can be used with command line arguments or from the TUI.
+bcalc can be used as CLI or TUI.
 
 Running the executable without any arguments starts it in TUI mode where you can do basic numeric calculations.
 
