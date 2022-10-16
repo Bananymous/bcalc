@@ -143,22 +143,13 @@ int main(int argc, char** argv)
 	if (argc == 1)
 		return ProgramLoop();
 
-	if (argc < 2)
-		return 1;
-
-	bool dump_tree = false;
-
-	for (int i = 1; i < argc - 1; i++)
-	{
-		if (strncmp(argv[i], "-d", 3) == 0)
-			dump_tree = true;
-		else
-			return 1;
-	}
+	std::string input_str;
+	for (int i = 1; i < argc; i++)
+		input_str += argv[i];
+	std::string_view input = input_str;
 
 	bcalc::Program program;
 
-	std::string_view input = argv[argc - 1];
 	std::size_t s = 0;
 	while (true)
 	{
