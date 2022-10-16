@@ -30,6 +30,9 @@ namespace bcalc
 				while (i + len < data.size() && isalpha(data[i + len])) len++;
 				std::string val(data.data() + i, len);
 
+				if (!result.empty() && result.back().Type() == TokenType::Value)
+					result.push_back(Token::Create(TokenType::Mult));
+
 				if (auto it = s_string_to_function.find(val); it != s_string_to_function.end())
 					result.push_back(Token::CreateBuiltinFunction(it->second));
 				else if (auto it = s_string_to_constant.find(val); it != s_string_to_constant.end())
