@@ -27,11 +27,15 @@ namespace bcalc
 			if (isalpha(data[i]))
 			{
 				uint64_t len = 1;
-				while (i + len < data.size() && isalpha(data[i + len])) len++;
+				while (i + len < data.size() && (isalpha(data[i + len]) || isdigit(data[i + len]))) len++;
 				std::string val(data.data() + i, len);
 
-				if (!result.empty() && result.back().Type() == TokenType::Value)
-					result.push_back(Token::Create(TokenType::Mult));
+				if (!result.empty())
+				{
+					auto last = result.back().Type();
+					if (last == TokenType::Value || last == TokenType::String || last == TokenType::Constant || last == TokenType::BuiltinFunction)
+						result.push_back(Token::Create(TokenType::Mult));
+				}
 
 				if (auto it = s_string_to_function.find(val); it != s_string_to_function.end())
 					result.push_back(Token::CreateBuiltinFunction(it->second));

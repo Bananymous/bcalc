@@ -103,6 +103,8 @@ namespace bcalc
 			if (result.has_error)
 				return error;
 			
+			m_variables["ans"] = result.value;
+
 			return { .value = result.value };
 		}
 	}
